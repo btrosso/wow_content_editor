@@ -2,16 +2,22 @@ import re
 import time
 import logging
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 log_file = None
 log_to_console = True
+
+
 class DataScraper:
     def __init__(self, url):
         self.url = url
-        self.driver = webdriver.Chrome()  # You can use any other webdriver here
+        chrome_options = Options()
+        chrome_options.add_argument("--incognito")  # Enable incognito mode
+        chrome_options.add_argument("--disable-cache")  # Disable caching
+        self.browser = webdriver.Chrome(options=chrome_options)
         self.logger = self.create_logger(log_file, log_to_console)
 
     def create_logger(self, _log_file=None, _log_to_console=True):
@@ -35,13 +41,13 @@ class DataScraper:
         return logger
 
     def navigate_to_page(self):
-        self.driver.get(self.url)
+        self.browser.get(self.url)
 
     def close_browser(self):
-        self.driver.quit()
+        self.browser.quit()
 
     def scrape_info(self):
-        wait = WebDriverWait(self.driver, 10)
+        wait = WebDriverWait(self.browser, 10)
         loot_tracker = {}
         try:
             table = wait.until(EC.visibility_of_element_located((By.XPATH, "//table[@class='listview-mode-default']")))
